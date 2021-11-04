@@ -2,11 +2,11 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.UserDao;
 import com.epam.esm.entity.User;
+import com.epam.esm.entity.UserTable;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,12 +27,25 @@ public class UserDaoImpl implements UserDao<Long> {
   }
 
   @Override
+  public Optional<User> findByUsername(String username) {
+    try {
+      TypedQuery<User> query =
+          entityManager.createQuery("from users u  where  u.name = :name", User.class);
+      query.setParameter(UserTable.USER_NAME, username);
+      return Optional.of(query.getSingleResult());
+    } catch (NoResultException ex) {
+      return Optional.empty();
+    }
+  }
+
+  @Override
   public long countUsers() {
     Query query = entityManager.createQuery("select count(*) from users");
     return (long) query.getSingleResult();
   }
 
   @Override
+  @Transactional
   public User create(User user) {
     entityManager.persist(user);
     return user;

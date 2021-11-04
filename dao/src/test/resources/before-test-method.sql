@@ -71,15 +71,16 @@ VALUES (3, 'nikolay','12345');
 INSERT INTO users
 VALUES (4, 'kristina','123456');
 
-INSERT INTO roles (role_id,name) VALUES (1,'GUEST');
-INSERT INTO roles (role_id,name) VALUES (2,'USER');
-INSERT INTO roles (role_id,name) VALUES (3,'ADMIN');
+INSERT INTO roles (role_id,name) VALUES (1,'ROLE_GUEST');
+INSERT INTO roles (role_id,name) VALUES (2,'ROLE_USER');
+INSERT INTO roles (role_id,name) VALUES (3,'ROLE_ADMIN');
 
-INSERT INTO users_roles (user_id, role_id) VALUES (1, 1);
+INSERT INTO users_roles (user_id, role_id) VALUES (1, 2);
+INSERT INTO users_roles (user_id, role_id) VALUES (1, 3);
 INSERT INTO users_roles (user_id, role_id) VALUES (2, 2);
-INSERT INTO users_roles (user_id, role_id) VALUES (3, 3);
+INSERT INTO users_roles (user_id, role_id) VALUES (3, 2);
 INSERT INTO users_roles (user_id, role_id) VALUES (4, 2);
-INSERT INTO users_roles (user_id, role_id) VALUES (4, 3);
+
 
 INSERT INTO orders (id, id_user)
 VALUES (1, 1);

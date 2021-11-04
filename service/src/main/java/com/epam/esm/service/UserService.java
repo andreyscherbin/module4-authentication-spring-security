@@ -11,7 +11,10 @@ public interface UserService {
 
   List<User> find(Map<String, String> params);
 
+  Optional<User> findByUsername(String username);
+
   long getTotalRows();
 
-  User register(User user);
+  User register(String username, String password);
+
 }

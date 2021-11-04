@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.ApplicationScope;
@@ -67,6 +68,7 @@ public class GiftCertificateController {
     return HateoasSupportGiftCertificate.getModel(gc);
   }
 
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
   @PostMapping(consumes = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public EntityModel<GiftCertificate> saveGiftCertificate(
@@ -78,6 +80,7 @@ public class GiftCertificateController {
     return HateoasSupportGiftCertificate.getModel(createdGift.get());
   }
 
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
   @PutMapping(value = "/{id}", consumes = "application/json")
   public EntityModel<GiftCertificate> updateGiftCertificate(
       @PathVariable Long id, @RequestBody @Valid GiftCertificate giftCertificate) {
@@ -97,6 +100,7 @@ public class GiftCertificateController {
     return model;
   }
 
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
   @PatchMapping(value = "/{id}", consumes = "application/json")
   public EntityModel<GiftCertificate> partialUpdateGiftCertificate(
       @RequestBody Map<String, Object> updates, @PathVariable Long id) {
@@ -113,6 +117,7 @@ public class GiftCertificateController {
     return model;
   }
 
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
   @DeleteMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteGiftCertificate(@PathVariable Long id) {

@@ -28,6 +28,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-devtools'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.8.0'
+
+
 }
 
 test {

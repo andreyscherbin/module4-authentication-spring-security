@@ -9,6 +9,9 @@ public final class ErrorCode {
     public static final int PARAM_ERROR = 5;
     public static final int SERVER_ERROR = 0;
     public static final int BAD_INPUT = 6;
+    public static final int BAD_TOKEN = 7;
+    public static final int ACCESS_DENIED = 8;
+    public static final int BAD_CREDENTIALS = 9;
 
     private ErrorCode() {
     }

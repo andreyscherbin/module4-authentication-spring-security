@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -41,6 +42,7 @@ public class OrderController {
     this.giftCertificateService = giftCertificateService;
   }
 
+  @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
   @PostMapping(consumes = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public EntityModel<Order> makeOrder(@RequestBody @Valid Order order) {
@@ -61,6 +63,7 @@ public class OrderController {
     return HateoasSupportOrder.getModel(savedOrder.get());
   }
 
+  @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
   @GetMapping(value = "/{id}", produces = "application/json")
   public EntityModel<Order> getOrderById(@PathVariable Long id) {
     Order order =
@@ -73,6 +76,7 @@ public class OrderController {
     return HateoasSupportOrder.getModel(order);
   }
 
+  @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
   @GetMapping(produces = "application/json")
   public DTO getOrders(@RequestParam Map<String, String> params) {
     List<Order> orders = orderService.find(params);

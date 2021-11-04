@@ -11,15 +11,13 @@ import javax.persistence.TypedQuery;
 @Repository
 public class RoleDaoImpl implements RoleDao<Long> {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-    @Override
-    public Role findByName(String name) {
-        TypedQuery<Role> query =
-                entityManager.createQuery(
-                        "from roles r where r.name = ?", Role.class);
-        query.setParameter(0, name);
-        return query.getSingleResult();
-    }
+  @Override
+  public Role findByName(String name) {
+    TypedQuery<Role> query =
+        entityManager.createQuery("from roles r where r.name = ?1", Role.class);
+    query.setParameter(1, name);
+    return query.getSingleResult();
+  }
 }

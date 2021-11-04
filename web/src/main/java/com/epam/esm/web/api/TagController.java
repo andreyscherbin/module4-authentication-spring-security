@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +32,7 @@ public class TagController {
     this.tagService = tagService;
   }
 
+  @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
   @GetMapping(produces = "application/json")
   public DTO getTags(@RequestParam Map<String, String> params) {
     List<Tag> tags = tagService.find(params);
@@ -41,6 +43,7 @@ public class TagController {
     return dto;
   }
 
+  @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
   @GetMapping(value = "/{id}", produces = "application/json")
   public EntityModel<Tag> getTag(@PathVariable Long id) {
     Tag tag =
@@ -53,6 +56,7 @@ public class TagController {
     return HateoasSupportTag.getModel(tag);
   }
 
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
   @PostMapping(consumes = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public EntityModel<Tag> saveTag(@RequestBody @Valid Tag tag) {
@@ -66,6 +70,7 @@ public class TagController {
     return HateoasSupportTag.getModel(createdTag);
   }
 
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
   @PutMapping(value = "/{id}", consumes = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public EntityModel<Tag> updateTag(@PathVariable Long id, @RequestBody @Valid Tag tag) {
@@ -84,6 +89,7 @@ public class TagController {
     return model;
   }
 
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
   @DeleteMapping(value = "/{id}", produces = "application/json")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteTag(@PathVariable Long id) {
@@ -94,6 +100,7 @@ public class TagController {
     tagService.delete(id);
   }
 
+  @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
   @GetMapping(value = "/popular", produces = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public CollectionModel<EntityModel<Tag>> getMostPopularTag() {

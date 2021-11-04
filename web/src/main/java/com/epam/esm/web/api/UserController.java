@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class UserController {
     this.orderService = orderService;
   }
 
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
   @GetMapping(value = "/{id}", produces = "application/json")
   public EntityModel<User> getUserById(@PathVariable Long id) {
     User user =
@@ -44,6 +46,7 @@ public class UserController {
     return HateoasSupportUser.getModel(user);
   }
 
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
   @GetMapping(produces = "application/json")
   public DTO getUsers(@RequestParam Map<String, String> params) {
     List<User> users = userService.find(params);
@@ -54,6 +57,7 @@ public class UserController {
     return dto;
   }
 
+  @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
   @GetMapping(value = "/{id}/orders", produces = "application/json")
   public CollectionModel<EntityModel<Order>> getOrdersByUser(
       @PathVariable Long id, @RequestParam(required = false) Map<String, String> params) {
@@ -71,6 +75,7 @@ public class UserController {
     }
   }
 
+  @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
   @GetMapping(value = "/{userId}/orders/{orderId}", produces = "application/json")
   public OrderInfo getOrderInfoByUser(@PathVariable Long userId, @PathVariable Long orderId) {
     Optional<User> user = userService.findById(userId);

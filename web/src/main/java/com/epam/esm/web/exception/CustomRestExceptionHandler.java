@@ -1,14 +1,9 @@
 package com.epam.esm.web.exception;
 
-import static com.epam.esm.entity.ErrorCode.BAD_INPUT;
-import static com.epam.esm.entity.ErrorCode.GIFT_CERTIFICATE_ERROR_CODE;
-import static com.epam.esm.entity.ErrorCode.PARAM_ERROR;
-import static com.epam.esm.entity.ErrorCode.SERVER_ERROR;
-import static com.epam.esm.entity.ErrorCode.TAG_ERROR_CODE;
-
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.exception.ValidationException;
+import com.epam.esm.web.security.jwt.JwtAuthenticationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.util.ArrayList;
@@ -27,6 +22,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -34,6 +31,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import static com.epam.esm.entity.ErrorCode.*;
 
 @ControllerAdvice
 public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
@@ -140,6 +139,42 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
         new ApiError(
             List.of(ex.constantName() + " : " + noSuchConstantMessage), status + PARAM_ERROR);
     return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler({JwtAuthenticationException.class})
+  public ResponseEntity<Object> handleJwt(JwtAuthenticationException ex) {
+    String status = String.valueOf(HttpStatus.UNAUTHORIZED.value());
+    String invalidTokenMessage =
+            messageSource.getMessage(
+                    "invalid.token", null, LocaleContextHolder.getLocale());
+    ApiError apiError =
+            new ApiError(
+                    List.of(invalidTokenMessage), status + BAD_TOKEN);
+    return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler({AccessDeniedException.class})
+  public ResponseEntity<Object> handleJwt(AccessDeniedException ex) {
+    String status = String.valueOf(HttpStatus.FORBIDDEN.value());
+    String accessDeniedMessage =
+            messageSource.getMessage(
+                    "access.denied", null, LocaleContextHolder.getLocale());
+    ApiError apiError =
+            new ApiError(
+                    List.of(accessDeniedMessage), status + ACCESS_DENIED);
+    return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.FORBIDDEN);
+  }
+
+  @ExceptionHandler({BadCredentialsException.class})
+  public ResponseEntity<Object> handleJwt(BadCredentialsException ex) {
+    String status = String.valueOf(HttpStatus.UNAUTHORIZED.value());
+    String badCredentialsMessage =
+            messageSource.getMessage(
+                    ex.getMessage(), null, LocaleContextHolder.getLocale());
+    ApiError apiError =
+            new ApiError(
+                    List.of(badCredentialsMessage), status + BAD_CREDENTIALS);
+    return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
   }
 
   @ExceptionHandler({Exception.class})
