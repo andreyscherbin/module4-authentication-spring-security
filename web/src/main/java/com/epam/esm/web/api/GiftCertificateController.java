@@ -34,8 +34,7 @@ public class GiftCertificateController {
 
   @Autowired
   public GiftCertificateController(
-      GiftCertificateService giftCertificateService,
-      TagService tagService) {
+      GiftCertificateService giftCertificateService, TagService tagService) {
     this.giftCertificateService = giftCertificateService;
     this.tagService = tagService;
   }

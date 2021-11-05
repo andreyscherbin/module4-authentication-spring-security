@@ -66,12 +66,22 @@ CREATE TABLE order_gift_certificate
 
 CREATE TABLE gift_certificate_price_history
 (
-    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id                  BIGINT IDENTITY,
     id_gift_certificate BIGINT,
     effective_date_from TIMESTAMP(3)   NOT NULL,
     effective_date_to   TIMESTAMP(3)   NOT NULL,
     price               DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (id_gift_certificate) REFERENCES gift_certificate (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+CREATE TABLE tokens
+(
+    id                  BIGINT IDENTITY,
+    access_token        VARCHAR(256) NOT NULL,
+    refresh_token       VARCHAR(256) NOT NULL,
+    id_user             BIGINT,
+    valid_refresh_token BOOLEAN      NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+)
 
 

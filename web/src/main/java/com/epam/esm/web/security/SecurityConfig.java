@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   private static final String LOGIN_ENDPOINT = "/login";
+  private static final String REFRESH_ENDPOINT = "/refresh";
   private static final String REGISTER_ENDPOINT = "/register";
   private static final String MAIN_ENTITY = "/certificates/**";
   private final JwtTokenProvider jwtTokenProvider;
@@ -45,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
         .authorizeRequests()
-        .antMatchers(LOGIN_ENDPOINT, MAIN_ENTITY, REGISTER_ENDPOINT)
+        .antMatchers(LOGIN_ENDPOINT, MAIN_ENTITY, REGISTER_ENDPOINT, REFRESH_ENDPOINT)
         .permitAll()
         .anyRequest()
         .authenticated()

@@ -30,7 +30,7 @@ public class UserDaoImpl implements UserDao<Long> {
   public Optional<User> findByUsername(String username) {
     try {
       TypedQuery<User> query =
-          entityManager.createQuery("from users u  where  u.name = :name", User.class);
+          entityManager.createQuery("select u from users u  where  u.name = :name", User.class);
       query.setParameter(UserTable.USER_NAME, username);
       return Optional.of(query.getSingleResult());
     } catch (NoResultException ex) {
