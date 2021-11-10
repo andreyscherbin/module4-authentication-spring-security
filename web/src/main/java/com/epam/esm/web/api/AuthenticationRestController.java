@@ -60,12 +60,11 @@ public class AuthenticationRestController {
       if (user.isEmpty()) {
         throw new UsernameNotFoundException("User with username: " + username + "not found");
       }
-      String accessToken = jwtTokenProvider.createToken(username, false);
-      String refreshToken = jwtTokenProvider.createToken(username, true);
+      String accessToken = jwtTokenProvider.createAccessToken(username);
+      String refreshToken = jwtTokenProvider.createRefreshToken(username);
       tokenService.delete(user.get());
-      tokenService.create(new Tokens(accessToken, refreshToken, user.get()));
+      tokenService.create(new Tokens(refreshToken, user.get()));
       Map<Object, Object> response = new HashMap<>();
-      response.put("username", username);
       response.put("accessToken", accessToken);
       response.put("refreshToken", refreshToken);
       return ResponseEntity.ok(response);
@@ -98,13 +97,10 @@ public class AuthenticationRestController {
     jwtTokenProvider.validateRefreshToken(refreshToken);
     String username = jwtTokenProvider.getUsername(refreshToken);
     Optional<User> user = userService.findByUsername(username);
-    if (user.isEmpty()) {
-      throw new UsernameNotFoundException("User with username: " + username + "not found");
-    }
-    String newAccessToken = jwtTokenProvider.createToken(username, false);
-    String newRefreshToken = jwtTokenProvider.createToken(username, true);
+    String newAccessToken = jwtTokenProvider.createAccessToken(username);
+    String newRefreshToken = jwtTokenProvider.createRefreshToken(username);
     Tokens newTokens = new Tokens(newAccessToken, newRefreshToken, user.get());
-    tokenService.invalidRefreshTokens(newTokens);
+    tokenService.invalidateRefreshTokens(newTokens);
     tokenService.create(newTokens);
     return newTokens;
   }

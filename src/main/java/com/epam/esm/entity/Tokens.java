@@ -17,8 +17,7 @@ public class Tokens {
   private long id;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  @Column(name = "access_token")
-  @Size(max = 256)
+  @Transient
   private String accessToken;
 
   @Column(name = "refresh_token")
@@ -35,15 +34,15 @@ public class Tokens {
   @JoinColumn(name = "id_user")
   private User user;
 
-  public Tokens(String accessToken, String refreshToken, User user) {
-    this.accessToken = accessToken;
-    this.refreshToken = refreshToken;
-    this.user = user;
-  }
-
   public Tokens(String accessToken, String refreshToken) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
+  }
+
+  public Tokens(String newAccessToken, String newRefreshToken, User user) {
+    this.accessToken = newAccessToken;
+    this.refreshToken = newRefreshToken;
+    this.user = user;
   }
 
   public Tokens(String refreshToken) {
@@ -51,6 +50,11 @@ public class Tokens {
   }
 
   public Tokens() {}
+
+  public Tokens(String refreshToken, User user) {
+    this.refreshToken = refreshToken;
+    this.user = user;
+  }
 
   public boolean isValidRefreshToken() {
     return validRefreshToken;

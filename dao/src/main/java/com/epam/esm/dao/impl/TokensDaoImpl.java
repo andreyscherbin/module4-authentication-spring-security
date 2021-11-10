@@ -16,8 +16,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
-import static com.epam.esm.entity.TokensTable.TOKENS_ACCESS_TOKEN;
-import static com.epam.esm.entity.TokensTable.TOKENS_REFRESH_TOKEN;
+import static com.epam.esm.entity.TokensTable.*;
 
 @Repository
 public class TokensDaoImpl implements TokensDao {
@@ -42,21 +41,13 @@ public class TokensDaoImpl implements TokensDao {
   }
 
   @Override
-  public List<Tokens> findByAccessToken(String accessToken) {
+  public List<Tokens> findByRefreshTokenAndUser(String refreshToken, User user) {
     TypedQuery<Tokens> query =
         entityManager.createQuery(
-            "SELECT t FROM tokens t WHERE t.accessToken = :access_token", Tokens.class);
-    query.setParameter(TOKENS_ACCESS_TOKEN, accessToken);
-    return query.getResultList();
-  }
-
-  @Override
-  public List<Tokens> findByRefreshToken(String refreshToken) {
-    TypedQuery<Tokens> query =
-        entityManager.createQuery(
-            "SELECT t FROM tokens t WHERE t.refreshToken = :refresh_token AND t.validRefreshToken = true",
+            "SELECT t FROM tokens t WHERE t.refreshToken = :refresh_token AND t.validRefreshToken = true AND t.user = :id_user",
             Tokens.class);
     query.setParameter(TOKENS_REFRESH_TOKEN, refreshToken);
+    query.setParameter(TOKENS_ID_USER, user);
     return query.getResultList();
   }
 

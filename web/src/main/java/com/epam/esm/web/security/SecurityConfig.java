@@ -6,11 +6,14 @@ import com.epam.esm.web.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
@@ -46,13 +49,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
         .authorizeRequests()
-        .antMatchers(LOGIN_ENDPOINT, MAIN_ENTITY, REGISTER_ENDPOINT, REFRESH_ENDPOINT)
+        .antMatchers(LOGIN_ENDPOINT, REGISTER_ENDPOINT, REFRESH_ENDPOINT)
+        .permitAll()
+        .antMatchers(HttpMethod.GET, MAIN_ENTITY)
         .permitAll()
         .anyRequest()
         .authenticated()
         .and()
         .apply(new JwtConfigurer(jwtTokenProvider))
         .and()
-        .addFilterBefore(filterChainExceptionHandler, LogoutFilter.class);
+        .addFilterBefore(filterChainExceptionHandler, LogoutFilter.class)
+        .exceptionHandling()
+        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
   }
 }

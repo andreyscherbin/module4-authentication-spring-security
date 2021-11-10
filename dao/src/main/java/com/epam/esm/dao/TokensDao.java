@@ -11,9 +11,7 @@ public interface TokensDao {
 
     void delete(User id);
 
-    List<Tokens> findByAccessToken(String accessToken);
-
-    List<Tokens> findByRefreshToken(String refreshToken);
+    List<Tokens> findByRefreshTokenAndUser(String refreshToken, User user);
 
     void update(User user, boolean validRefreshToken);
 }

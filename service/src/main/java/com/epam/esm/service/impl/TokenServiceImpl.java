@@ -30,17 +30,12 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
-  public List<Tokens> findByAccessToken(String accessToken) {
-    return tokensDao.findByAccessToken(accessToken);
+  public List<Tokens> findByRefreshTokenAndUser(String refreshToken, User user) {
+    return tokensDao.findByRefreshTokenAndUser(refreshToken, user);
   }
 
   @Override
-  public List<Tokens> findByRefreshToken(String refreshToken) {
-    return tokensDao.findByRefreshToken(refreshToken);
-  }
-
-  @Override
-  public void invalidRefreshTokens(Tokens newTokens) {
+  public void invalidateRefreshTokens(Tokens newTokens) {
     tokensDao.update(newTokens.getUser(), false);
   }
 }

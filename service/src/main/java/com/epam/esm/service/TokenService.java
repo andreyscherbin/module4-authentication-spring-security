@@ -12,9 +12,7 @@ public interface TokenService {
 
   void delete(User user);
 
-  List<Tokens> findByAccessToken(String accessToken);
+  List<Tokens> findByRefreshTokenAndUser(String refreshToken, User user);
 
-  List<Tokens> findByRefreshToken(String refreshToken);
-
-  void invalidRefreshTokens(Tokens newTokens);
+  void invalidateRefreshTokens(Tokens newTokens);
 }
