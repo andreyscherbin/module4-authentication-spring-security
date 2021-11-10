@@ -23,12 +23,12 @@ public class Order {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
-  @Valid
-  @NotNull
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   @ManyToOne
   @JoinColumn(name = "id_user")
   private User user;
 
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   @Digits(integer = 10, fraction = 2)
   private BigDecimal cost;
 
