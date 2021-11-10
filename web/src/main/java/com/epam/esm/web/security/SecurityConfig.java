@@ -1,5 +1,6 @@
 package com.epam.esm.web.security;
 
+import com.epam.esm.web.exception.RestAuthenticationEntryPoint;
 import com.epam.esm.web.filter.FilterChainExceptionHandler;
 import com.epam.esm.web.security.jwt.JwtConfigurer;
 import com.epam.esm.web.security.jwt.JwtTokenProvider;
@@ -60,6 +61,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .addFilterBefore(filterChainExceptionHandler, LogoutFilter.class)
         .exceptionHandling()
-        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+        .authenticationEntryPoint(new RestAuthenticationEntryPoint());
   }
 }
