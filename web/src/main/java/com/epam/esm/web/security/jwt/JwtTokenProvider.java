@@ -3,6 +3,7 @@ package com.epam.esm.web.security.jwt;
 import com.epam.esm.entity.User;
 import com.epam.esm.service.TokenService;
 import com.epam.esm.service.UserService;
+import com.epam.esm.web.exception.BadRefreshTokenException;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -98,7 +99,7 @@ public class JwtTokenProvider {
       }
       return true;
     } catch (JwtException | IllegalArgumentException e) {
-      throw new JwtAuthenticationException(("access token is expired or invalid"));
+      throw new JwtAuthenticationException(("invalid.access_token"));
     }
   }
 
@@ -114,11 +115,11 @@ public class JwtTokenProvider {
         throw new UsernameNotFoundException("User with username: " + username + "not found");
       }
       if (tokenService.findByRefreshTokenAndUser(refreshToken, user.get()).isEmpty()) {
-        throw new JwtException("refresh token is invalid");
+        throw new BadRefreshTokenException(("invalid.refresh_token"));
       }
       return true;
-    } catch (JwtException | IllegalArgumentException e) {
-      throw new JwtAuthenticationException(("refresh token is expired or invalid"));
+    } catch (JwtException | IllegalArgumentException | UsernameNotFoundException e) {
+      throw new BadRefreshTokenException(("invalid.refresh_token"));
     }
   }
 }

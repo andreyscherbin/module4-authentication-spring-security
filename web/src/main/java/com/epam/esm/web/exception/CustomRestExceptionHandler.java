@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -145,35 +146,35 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<Object> handleJwt(JwtAuthenticationException ex) {
     String status = String.valueOf(HttpStatus.UNAUTHORIZED.value());
     String invalidTokenMessage =
-            messageSource.getMessage(
-                    "invalid.token", null, LocaleContextHolder.getLocale());
-    ApiError apiError =
-            new ApiError(
-                    List.of(invalidTokenMessage), status + BAD_TOKEN);
+        messageSource.getMessage(ex.getMessage(), null, LocaleContextHolder.getLocale());
+    ApiError apiError = new ApiError(List.of(invalidTokenMessage), status + BAD_TOKEN);
     return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
   }
 
+  @ExceptionHandler({BadRefreshTokenException.class})
+  public ResponseEntity<Object> handleRefreshToken(BadRefreshTokenException ex) {
+    String status = String.valueOf(HttpStatus.BAD_REQUEST.value());
+    String invalidRefreshTokenMessage =
+        messageSource.getMessage(ex.getMessage(), null, LocaleContextHolder.getLocale());
+    ApiError apiError = new ApiError(List.of(invalidRefreshTokenMessage), status + BAD_TOKEN);
+    return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+  }
+
   @ExceptionHandler({AccessDeniedException.class})
-  public ResponseEntity<Object> handleJwt(AccessDeniedException ex) {
+  public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex) {
     String status = String.valueOf(HttpStatus.FORBIDDEN.value());
     String accessDeniedMessage =
-            messageSource.getMessage(
-                    "access.denied", null, LocaleContextHolder.getLocale());
-    ApiError apiError =
-            new ApiError(
-                    List.of(accessDeniedMessage), status + ACCESS_DENIED);
+        messageSource.getMessage("access.denied", null, LocaleContextHolder.getLocale());
+    ApiError apiError = new ApiError(List.of(accessDeniedMessage), status + ACCESS_DENIED);
     return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.FORBIDDEN);
   }
 
   @ExceptionHandler({BadCredentialsException.class})
-  public ResponseEntity<Object> handleJwt(BadCredentialsException ex) {
+  public ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex) {
     String status = String.valueOf(HttpStatus.UNAUTHORIZED.value());
     String badCredentialsMessage =
-            messageSource.getMessage(
-                    ex.getMessage(), null, LocaleContextHolder.getLocale());
-    ApiError apiError =
-            new ApiError(
-                    List.of(badCredentialsMessage), status + BAD_CREDENTIALS);
+        messageSource.getMessage(ex.getMessage(), null, LocaleContextHolder.getLocale());
+    ApiError apiError = new ApiError(List.of(badCredentialsMessage), status + BAD_CREDENTIALS);
     return new ResponseEntity<>(apiError, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
   }
 

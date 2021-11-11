@@ -6,6 +6,7 @@ import com.epam.esm.service.UserService;
 import com.epam.esm.web.exception.ResourceException;
 import com.epam.esm.web.hateoas.HateoasSupportOrder;
 import com.epam.esm.web.hateoas.HateoasSupportUser;
+import com.epam.esm.web.security.jwt.JwtAuthenticationException;
 import com.epam.esm.web.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -13,6 +14,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -43,25 +45,30 @@ public class UserController {
   @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
   @GetMapping(value = "/{id}", produces = "application/json")
   public EntityModel<User> getUserById(@PathVariable Long id) {
-    String token = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-    String username = jwtTokenProvider.getUsername(token);
-    Optional<User> findUser = userService.findByUsername(username);
-    if (findUser.isEmpty()) {
-      throw new UsernameNotFoundException("User with username: " + username + "not found");
+    try {
+      String token =
+          (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+      String username = jwtTokenProvider.getUsername(token);
+      Optional<User> findUser = userService.findByUsername(username);
+      if (findUser.isEmpty()) {
+        throw new UsernameNotFoundException("User with username: " + username + "not found");
+      }
+      if (findUser.get().getId() != id
+          && findUser.get().getRoles().stream()
+              .noneMatch(role -> role.getName().equals("ROLE_ADMIN"))) {
+        throw new AccessDeniedException("illegal access for " + username);
+      }
+      User user =
+          userService
+              .findById(id)
+              .orElseThrow(
+                  () ->
+                      new ResourceException(
+                          "user.not_found", HttpStatus.NOT_FOUND, USER_ERROR_CODE, id));
+      return HateoasSupportUser.getModel(user);
+    } catch (AuthenticationException e) {
+      throw new JwtAuthenticationException(("invalid.access_token"));
     }
-    if (findUser.get().getId() != id
-        && !findUser.get().getRoles().stream()
-            .anyMatch(role -> role.getName().equals("ROLE_ADMIN"))) {
-      throw new AccessDeniedException("illegal access for " + username);
-    }
-    User user =
-        userService
-            .findById(id)
-            .orElseThrow(
-                () ->
-                    new ResourceException(
-                        "user.not_found", HttpStatus.NOT_FOUND, USER_ERROR_CODE, id));
-    return HateoasSupportUser.getModel(user);
   }
 
   @PreAuthorize("hasAuthority('ROLE_ADMIN')")

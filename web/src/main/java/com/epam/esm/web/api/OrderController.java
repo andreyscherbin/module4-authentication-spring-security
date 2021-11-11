@@ -9,12 +9,15 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
 import com.epam.esm.web.exception.ResourceException;
 import com.epam.esm.web.hateoas.HateoasSupportOrder;
+import com.epam.esm.web.security.jwt.JwtAuthenticationException;
 import com.epam.esm.web.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -52,23 +55,31 @@ public class OrderController {
   @PostMapping(consumes = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public EntityModel<Order> makeOrder(@RequestBody @Valid Order order) {
-    String token = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-    String username = jwtTokenProvider.getUsername(token);
-    Optional<User> user = userService.findByUsername(username);
-    if (user.isEmpty()) {
-      throw new UsernameNotFoundException("User with username: " + username + "not found");
-    }
-    order.setUser(user.get());
-    for (GiftCertificate gc : order.getCertificates()) {
-      Optional<GiftCertificate> findGiftCertificate = giftCertificateService.findById(gc.getId());
-      if (findGiftCertificate.isEmpty()) {
-        throw new ResourceException(
-            "certificate.not_found", HttpStatus.NOT_FOUND, GIFT_CERTIFICATE_ERROR_CODE, gc.getId());
+    try {
+      String token =
+          (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+      String username = jwtTokenProvider.getUsername(token);
+      Optional<User> user = userService.findByUsername(username);
+      if (user.isEmpty()) {
+        throw new UsernameNotFoundException("User with username: " + username + "not found");
       }
+      order.setUser(user.get());
+      for (GiftCertificate gc : order.getCertificates()) {
+        Optional<GiftCertificate> findGiftCertificate = giftCertificateService.findById(gc.getId());
+        if (findGiftCertificate.isEmpty()) {
+          throw new ResourceException(
+              "certificate.not_found",
+              HttpStatus.NOT_FOUND,
+              GIFT_CERTIFICATE_ERROR_CODE,
+              gc.getId());
+        }
+      }
+      long idResource = orderService.create(order).getId();
+      Optional<Order> savedOrder = orderService.findById(idResource);
+      return HateoasSupportOrder.getModel(savedOrder.get());
+    } catch (AuthenticationException e) {
+      throw new JwtAuthenticationException(("invalid.access_token"));
     }
-    long idResource = orderService.create(order).getId();
-    Optional<Order> savedOrder = orderService.findById(idResource);
-    return HateoasSupportOrder.getModel(savedOrder.get());
   }
 
   @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
