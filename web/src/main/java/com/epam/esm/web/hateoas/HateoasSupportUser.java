@@ -1,5 +1,7 @@
 package com.epam.esm.web.hateoas;
 
+import com.epam.esm.entity.LoginResult;
+import com.epam.esm.entity.RegisterResult;
 import com.epam.esm.entity.User;
 import com.epam.esm.web.api.UserController;
 import org.springframework.hateoas.CollectionModel;
@@ -38,5 +40,18 @@ public class HateoasSupportUser {
     Link link = linkTo(methodOn(UserController.class).getUsers(params)).withSelfRel();
     collectionModel.removeLinks();
     collectionModel.add(link);
+  }
+
+  public static EntityModel<RegisterResult> getModel(RegisterResult registerResult) {
+    EntityModel<RegisterResult> model = EntityModel.of(registerResult);
+    Link selfLink =
+        linkTo(UserController.class).slash(registerResult.getUser().getId()).withSelfRel();
+    return model.add(selfLink);
+  }
+
+  public static EntityModel<LoginResult> getModel(LoginResult loginResult) {
+    EntityModel<LoginResult> model = EntityModel.of(loginResult);
+    Link selfLink = linkTo(UserController.class).slash(loginResult.getUser().getId()).withSelfRel();
+    return model.add(selfLink);
   }
 }

@@ -31,6 +31,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     api'javax.persistence:javax.persistence-api:2.2'
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
 }
 
 test {
