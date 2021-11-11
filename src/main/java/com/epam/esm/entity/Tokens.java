@@ -34,19 +34,10 @@ public class Tokens {
   @JoinColumn(name = "id_user")
   private User user;
 
-  public Tokens(String accessToken, String refreshToken) {
-    this.accessToken = accessToken;
-    this.refreshToken = refreshToken;
-  }
-
   public Tokens(String newAccessToken, String newRefreshToken, User user) {
     this.accessToken = newAccessToken;
     this.refreshToken = newRefreshToken;
     this.user = user;
-  }
-
-  public Tokens(String refreshToken) {
-    this.refreshToken = refreshToken;
   }
 
   public Tokens() {}

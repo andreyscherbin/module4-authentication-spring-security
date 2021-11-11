@@ -25,7 +25,7 @@ import static com.epam.esm.entity.ErrorCode.TAG_ERROR_CODE;
 @Validated
 public class TagController {
 
-  private TagService tagService;
+  private final TagService tagService;
 
   @Autowired
   public TagController(TagService tagService) {

@@ -29,8 +29,8 @@ import static com.epam.esm.entity.ErrorCode.GIFT_CERTIFICATE_ERROR_CODE;
 @Validated
 public class GiftCertificateController {
 
-  private GiftCertificateService giftCertificateService;
-  private TagService tagService;
+  private final GiftCertificateService giftCertificateService;
+  private final TagService tagService;
 
   @Autowired
   public GiftCertificateController(

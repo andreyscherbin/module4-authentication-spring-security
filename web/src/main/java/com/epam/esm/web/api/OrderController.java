@@ -31,9 +31,9 @@ import static com.epam.esm.entity.ErrorCode.USER_ERROR_CODE;
 @RequestMapping("/orders")
 public class OrderController {
 
-  private OrderService orderService;
-  private UserService userService;
-  private GiftCertificateService giftCertificateService;
+  private final OrderService orderService;
+  private final UserService userService;
+  private final GiftCertificateService giftCertificateService;
   private final JwtTokenProvider jwtTokenProvider;
 
   @Autowired
