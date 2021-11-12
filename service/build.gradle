@@ -1,0 +1,29 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'java'
+    id 'war'
+}
+
+group = 'com.epam.esm'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+springBoot {
+    mainClassName = 'com.epam.esm.web.WebApplication'
+}
+
+dependencies {
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.apache.commons:commons-collections4:4.4'
+    implementation project(':')
+    implementation project(':dao')
+}
+
+test {
+    useJUnitPlatform()
+}
