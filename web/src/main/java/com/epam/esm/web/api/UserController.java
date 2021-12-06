@@ -45,6 +45,13 @@ public class UserController {
   @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
   @GetMapping(value = "/{id}", produces = "application/json")
   public EntityModel<User> getUserById(@PathVariable Long id) {
+    User user =
+        userService
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResourceException(
+                        "user.not_found", HttpStatus.NOT_FOUND, USER_ERROR_CODE, id));
     try {
       String token =
           (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
@@ -58,13 +65,6 @@ public class UserController {
               .noneMatch(role -> role.getName().equals("ROLE_ADMIN"))) {
         throw new AccessDeniedException("illegal access for " + username);
       }
-      User user =
-          userService
-              .findById(id)
-              .orElseThrow(
-                  () ->
-                      new ResourceException(
-                          "user.not_found", HttpStatus.NOT_FOUND, USER_ERROR_CODE, id));
       return HateoasSupportUser.getModel(user);
     } catch (AuthenticationException e) {
       throw new JwtAuthenticationException(("invalid.access_token"));
@@ -90,13 +90,29 @@ public class UserController {
     if (user.isEmpty()) {
       throw new ResourceException("user.not_found", HttpStatus.NOT_FOUND, USER_ERROR_CODE, id);
     }
+    List<Order> result;
     if (params != null) {
       params.put(ParamName.ID.toString(), id.toString());
-      List<Order> result = orderService.find(params);
-      return HateoasSupportOrder.getCollectionModel(result);
+      result = orderService.find(params);
     } else {
-      List<Order> result = orderService.find(Map.of(ParamName.ID.toString(), id.toString()));
+      result = orderService.find(Map.of(ParamName.ID.toString(), id.toString()));
+    }
+    try {
+      String token =
+          (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+      String username = jwtTokenProvider.getUsername(token);
+      Optional<User> findUser = userService.findByUsername(username);
+      if (findUser.isEmpty()) {
+        throw new UsernameNotFoundException("User with username: " + username + "not found");
+      }
+      if (findUser.get().getId() != id
+          && findUser.get().getRoles().stream()
+              .noneMatch(role -> role.getName().equals("ROLE_ADMIN"))) {
+        throw new AccessDeniedException("illegal access for " + username);
+      }
       return HateoasSupportOrder.getCollectionModel(result);
+    } catch (AuthenticationException e) {
+      throw new JwtAuthenticationException(("invalid.access_token"));
     }
   }
 
@@ -120,6 +136,22 @@ public class UserController {
       throw new ResourceException(
           "user_empty_order", HttpStatus.NOT_FOUND, ORDER_ERROR_CODE, userId, orderId);
     }
-    return orderInfo.get();
+    try {
+      String token =
+          (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+      String username = jwtTokenProvider.getUsername(token);
+      Optional<User> findUser = userService.findByUsername(username);
+      if (findUser.isEmpty()) {
+        throw new UsernameNotFoundException("User with username: " + username + "not found");
+      }
+      if (findUser.get().getId() != userId
+          && findUser.get().getRoles().stream()
+              .noneMatch(role -> role.getName().equals("ROLE_ADMIN"))) {
+        throw new AccessDeniedException("illegal access for " + username);
+      }
+      return orderInfo.get();
+    } catch (AuthenticationException e) {
+      throw new JwtAuthenticationException(("invalid.access_token"));
+    }
   }
 }

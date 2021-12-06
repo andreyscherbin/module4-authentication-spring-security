@@ -9,12 +9,14 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
 import com.epam.esm.web.exception.ResourceException;
 import com.epam.esm.web.hateoas.HateoasSupportOrder;
+import com.epam.esm.web.hateoas.HateoasSupportUser;
 import com.epam.esm.web.security.jwt.JwtAuthenticationException;
 import com.epam.esm.web.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -92,10 +94,26 @@ public class OrderController {
                 () ->
                     new ResourceException(
                         "order.not_found", HttpStatus.NOT_FOUND, USER_ERROR_CODE, id));
-    return HateoasSupportOrder.getModel(order);
+    try {
+      String token =
+          (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+      String username = jwtTokenProvider.getUsername(token);
+      Optional<User> findUser = userService.findByUsername(username);
+      if (findUser.isEmpty()) {
+        throw new UsernameNotFoundException("User with username: " + username + "not found");
+      }
+      if (findUser.get().getId() != order.getUser().getId()
+          && findUser.get().getRoles().stream()
+              .noneMatch(role -> role.getName().equals("ROLE_ADMIN"))) {
+        throw new AccessDeniedException("illegal access for " + username);
+      }
+      return HateoasSupportOrder.getModel(order);
+    } catch (AuthenticationException e) {
+      throw new JwtAuthenticationException(("invalid.access_token"));
+    }
   }
 
-  @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
   @GetMapping(produces = "application/json")
   public DTO getOrders(@RequestParam Map<String, String> params) {
     List<Order> orders = orderService.find(params);
